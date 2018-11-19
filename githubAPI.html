@@ -1,0 +1,451 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>GitAPI</title>
+  <meta name="description" content="GITAPI">
+  <meta name="author" content="Josh Stafford">
+  <meta name="viewport" content="width=device-width">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <!--<link rel="stylesheet" type="text/css" href="styles.css">-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue-yellow.min.css" />
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="https://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+<style>
+body {
+  align-content: center;
+  align-items: center;
+  text-align: center;
+  font: 10px sans-serif;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.bar {
+  fill: orange;
+}
+.bar:hover {
+  fill: orangered ;
+}
+.x.axis path {
+  display: none;
+}
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header" id="headerID" style="position: relative; text-align: center; color: gray;">
+  <h1>Josh's Github API</h1>
+    <div id="userInfo">
+
+        <img style="float: left; width: 420px; height: 420px; display: none" id="profileAvatar" src="none">
+        <h1 id="fName"></h1>
+        <h2 id="uName"></h2>
+        <h2 id="location"></h2>
+        <h3 id="following"></h3>
+        <h3 id="followers"></h3>
+
+      </div>
+
+</div>
+<!--
+<div onclick="showBus()" class="square img_1-1">
+</div>
+<div onclick="showTrains()" class="square img_1-2">
+</div>
+-->
+
+<!-- 2nd row verticaly centered images in square columns -->
+<!--
+<div onclick="TestFunction()" class="square img_2-1">
+</div>
+<div class="square img_2-2">
+</div>
+-->
+<div class="row" style="display: inline-block;">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <div class="col-6 col-m-6">
+      <div id="chart">
+        <form action="#">
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" id="getAccount">
+            <label class="mdl-textfield__label" for="sample1">Github account name</label>
+          </div>
+          <button id="getAccountBtn" style="align-content: center; align-items: center; padding-bottom: 15px;" type="button" class="mdl-button mdl-js-button mdl-button--colored mdl-button--raised mdl-js-ripple-effect" onclick="getAccountName()"> Get Account </button>
+        </form>
+      </div>
+
+      <div class="col-6 col-m-6" id="TrainTable">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <label class="mdl-textfield__label">Repo Select</label>
+          <select class="mdl-textfield__input" id="reposList" onchange="updateSelect()">
+            <option value="Selection">--- Choose Repo ---</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <footer id="repoGraph">
+
+
+
+    </footer>
+  
+</div>
+
+</div>
+
+<div class="footer">
+<!--<button id="getAccountBtn" style="align-content: center; align-items: center; padding-bottom: 15px;" type="button" class="mdl-button mdl-js-button mdl-button--colored mdl-button--raised mdl-js-ripple-effect" onclick="toBlack()"> to black </button>-->
+  <p>Made by Josh Stafford (15321179)</p>
+</div>
+
+</body>
+ <script src="https://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script type="text/javascript">
+var repoChosen = "";
+var user = "";
+var fileNames = [];
+var numberFiles = 0;
+var numberOfFiles = 0;
+var contributors = [];
+var data2 = [];
+var repoNames = [];
+var reposize = [];
+/*function toBlack(){
+  //var body = d3.select("footer");
+  //var div = body.append("div");
+  //div.html("Hello, world!");
+  //body.style("color", "black");
+  
+var circleRadii = [40, 20, 10]
+var svgContainer = d3.select("footer").append("svg")
+                                    .attr("width", 600)
+                                    .attr("height", 100);
+var circles = svgContainer.selectAll("circle")
+                          .data(circleRadii)
+                          .enter()
+                          .append("circle")
+var circleAttributes = circles
+                       .attr("cx", 50)
+                       .attr("cy", 50)
+                       .attr("r", function (d) { return d; })
+                       .style("fill", function(d) {
+                         var returnColor;
+                         if (d === 40) { returnColor = "green";
+                         } else if (d === 20) { returnColor = "purple";
+                         } else if (d === 10) { returnColor = "red"; }
+                         return returnColor;
+                       });
+}*/
+function getAccountName(){
+  var accName = document.getElementById("getAccount").value;
+  //var x = document.getElementById("profileAvatar");
+  console.log(accName);
+  user = accName;
+  githubPic(accName);
+  //githubData(accName);
+}
+function githubPic(username){
+  var createURL = "https://api.github.com/users/" + username;
+    console.log(createURL);
+    $.ajax({
+      type: 'GET',
+      url: createURL,
+      dataType: "JSON", // data type expected from server
+      success: function (data) {
+        var userjson = data;
+        console.log(userjson);
+        var location = userjson.location;
+        var uName = userjson.login;
+        var fullName = userjson.name;
+        var followers = userjson.followers;
+        var following = userjson.following;
+        var avatar = userjson.avatar_url;
+        console.log(location + " " + uName + " " + fullName + " " + followers + " " + following + " " + avatar);
+        document.getElementById('fName').innerHTML = fullName;
+        document.getElementById('uName').innerHTML = uName;
+        document.getElementById('location').innerHTML = location;
+        document.getElementById('following').innerHTML = "Following: " + following;
+        document.getElementById('followers').innerHTML = "Followers: " + followers;
+        document.getElementById('profileAvatar').src = avatar;
+        var x = document.getElementById("profileAvatar");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } //else {
+          //x.style.display = "none";
+        //}
+        githubData(username);
+      },
+      error: function() {
+          console.log('Error: ' + data);
+          //document.getElementById('')
+      }
+    });
+}
+  function githubData(username){
+    var createURL = "https://api.github.com/users/" + username + "/repos";
+    console.log(createURL);
+    $.ajax({
+      type: 'GET',
+      url: createURL,
+      dataType: "JSON", // data type expected from server
+      success: function (data) {
+        var reposjson = data;
+        console.log(reposjson);
+        var numRepos = reposjson.length;
+        console.log(numRepos);
+        //repoNames = [];
+        var filesInRepos = [];
+        for(var i = 0; i < numRepos; i++){
+          repoNames[i] = reposjson[i].name;
+          console.log(repoNames[i]);
+        }
+        var selectID = document.getElementById('reposList');
+        //var opt = document.createElement();
+        var count = 0;
+        for(var r = 0; r < numRepos; r++){
+          var opt = document.createElement('option');
+          //console.log("Created element");
+          opt.innerHTML = reposjson[r].name;
+          opt.value = count;
+          selectID.appendChild(opt);
+          count++;
+        }
+        updateSelect(numRepos, reposjson);
+      },
+      error: function() {
+          console.log('Error: ' + data);
+          //document.getElementById('')
+      }
+    });
+  }
+    function updateSelect(){
+      var repoChoice = document.getElementById("reposList");
+      document.getElementsByTagName('footer').innerHTML = "";
+      repoChosen = repoChoice.options[repoChoice.selectedIndex].innerHTML;
+      console.log(repoChosen);
+    
+      repoData(repoChosen);
+    }
+    
+    function repoData(name){
+    //var createURL = "https://api.github.com/users/joshS28/" + name + "/contents";
+    var createURL = "https://api.github.com/repos/" + user + "/" + name + "/contents";
+    console.log(createURL);
+    $.ajax({
+      type: 'GET',
+      url: createURL,
+      dataType: "JSON", // data type expected from server
+      success: function (data) {
+        var contentsjson = data;
+        console.log(contentsjson);
+        numberOfFiles = contentsjson.length;
+        console.log(numberFiles);
+        for(var i = 0; i < numberOfFiles; i++){
+          fileNames[i] = contentsjson[i].name;
+          console.log(fileNames[i]);
+        }
+        //return numberFiles;
+       repoSize(name);
+      },
+      error: function() {
+          console.log('Error: ' + data);
+          //document.getElementById('')
+      }
+    });
+  }
+  function repoSize(name){
+    //var createURL = "https://api.github.com/users/joshS28/" + name + "/contents";
+    var createURL = "https://api.github.com/users/" + user + "/repos";
+    console.log(createURL);
+    $.ajax({
+      type: 'GET',
+      url: createURL,
+      dataType: "JSON", // data type expected from server
+      success: function (data) {
+        var contentsjson = data;
+        console.log(contentsjson);
+        
+        for(var y = 0; y < contentsjson.length; y++){
+          var size =contentsjson[y].size;
+          reposize.push(size); 
+          console.log(reposize[y]);
+        }
+        commitsInfo(name);
+      },
+      error: function() {
+          console.log('Error: ' + data);
+          //document.getElementById('')
+      }
+    });
+  }
+  function commitsInfo(name){
+    var createURL = "https://api.github.com/repos/" + user + "/" + name + "/commits";
+    console.log(createURL);
+    $.ajax({
+      type: 'GET',
+      url: createURL,
+      dataType: "JSON", // data type expected from server
+      success: function (data) {
+        var contentsjson = data;
+        console.log(contentsjson);
+        numberFiles = contentsjson.length;
+        console.log(numberFiles);
+        var first = contentsjson[0];
+        //console.log(first);
+        //var contributors = [];
+        for(var x = 0; x < numberFiles; x++){
+          var commit = contentsjson[x].sha;
+          var commit2 = contentsjson[x].commit;
+          var author = commit2.author.name;
+          //console.log(commit + " " + author);
+          contributors.push({
+            comID: commit,
+            auth: author,
+          });
+          console.log(contributors[x].comID + " " + contributors[x].auth);
+        }
+        for(var t = 0; t < fileNames.length; t++){
+          data2.push({
+            repos: repoNames[t],
+            commits: reposize[t],
+          })
+         console.log("repos: " + data2[t].repos + " commits: " + data2[t].commits);
+        }
+        makeChart();
+        //return numberFiles;
+      },
+      error: function() {
+          console.log('Error: ' + data);
+          //document.getElementById('')
+      }
+    });
+    }
+    function numberCommits(name){
+    var createURL = "https://api.github.com/repos/" + user + "/" + name + "/commits";
+    console.log(createURL);
+    $.ajax({
+      type: 'GET',
+      url: createURL,
+      dataType: "JSON", // data type expected from server
+      success: function (data) {
+        var contentsjson = data;
+        console.log(contentsjson);
+        numberFiles = contentsjson.length;
+        console.log(numberFiles);
+        var first = contentsjson[0];
+        //console.log(first);
+        //var contributors = [];
+        return numberFiles;
+      },
+      error: function() {
+          console.log('Error: ' + data);
+          //document.getElementById('')
+      }
+    });
+    }
+function makeChart(){
+var margin = {top: 40, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+var formatPercent = d3.format(".0%");
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+var y = d3.scale.linear()
+    .range([height, 0]);
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(formatPercent);
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>Size:</strong> <span style='color:red'>" + d.commits + "</span>";
+  })
+var svg = d3.select("footer").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+svg.call(tip);
+// The new data variable.
+//data2 = [
+ // {repos: "A", commits: .08167} 
+//];
+// The following code was contained in the callback function.
+x.domain(data2.map(function(d) { return d.repos; }));
+y.domain([0, d3.max(data2, function(d) { return d.commits; })]);
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+  .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Size");
+svg.selectAll(".bar")
+    .data(data2)
+  .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.repos); })
+    .attr("width", x.rangeBand())
+    .attr("y", function(d) { return y(d.commits); })
+    .attr("height", function(d) { return height - y(d.commits); })
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
+function type(d) {
+  d.commits = +d.commits;
+  return d;
+}
+}
+</script>
+</html>
